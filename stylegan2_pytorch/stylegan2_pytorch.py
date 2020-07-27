@@ -542,6 +542,9 @@ class Discriminator(nn.Module):
 
         self.flatten = Flatten()
         self.to_logit = nn.Linear(latent_dim, 1)
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (Exiting Discriminator): {sanitycheck}')
 
     def forward(self, x):
         b, *_ = x.shape
