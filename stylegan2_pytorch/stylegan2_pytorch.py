@@ -600,8 +600,9 @@ class StyleGAN2(nn.Module):
         update_moving_average(self.GE, self.G)
 
     def reset_parameter_averaging(self):
-        self.SE.load_state_dict(self.S.state_dict())
-        self.GE.load_state_dict(self.G.state_dict())
+        if self.debug_and_crash_mode is False:
+            self.SE.load_state_dict(self.S.state_dict())
+            self.GE.load_state_dict(self.G.state_dict())
 
     def forward(self, x):
         return x
