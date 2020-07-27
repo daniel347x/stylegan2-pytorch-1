@@ -667,7 +667,7 @@ class Trainer():
 
     def init_GAN(self):
         args, kwargs = self.GAN_params
-        self.GAN = StyleGAN2(lr=self.lr, image_size = self.image_size, network_capacity = self.network_capacity, transparent = self.transparent, fq_layers = self.fq_layers, fq_dict_size = self.fq_dict_size, attn_layers = self.attn_layers, fp16 = self.fp16, cl_reg = self.cl_reg, no_const = self.no_const, debug_and_crash_mode=debug_and_crash_mode, *args, **kwargs)
+        self.GAN = StyleGAN2(lr=self.lr, image_size = self.image_size, network_capacity = self.network_capacity, transparent = self.transparent, fq_layers = self.fq_layers, fq_dict_size = self.fq_dict_size, attn_layers = self.attn_layers, fp16 = self.fp16, cl_reg = self.cl_reg, no_const = self.no_const, debug_and_crash_mode=self.debug_and_crash_mode, *args, **kwargs)
 
     def write_config(self):
         self.config_path.write_text(json.dumps(self.config()))
