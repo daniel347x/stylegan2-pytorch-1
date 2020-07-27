@@ -543,6 +543,10 @@ class StyleGAN2(nn.Module):
         self.ema_updater = EMA(0.995)
         self.debug_and_crash_mode = debug_and_crash_mode
 
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (should always be the same ENTERING StyleGAN2 ctor): {sanitycheck}')
+
         self.S = StyleVectorizer(latent_dim, style_depth)
         self.G = Generator(image_size, latent_dim, network_capacity, transparent = transparent, attn_layers = attn_layers, no_const = no_const, fmap_max = fmap_max)
         self.D = Discriminator(image_size, network_capacity, fq_layers = fq_layers, fq_dict_size = fq_dict_size, attn_layers = attn_layers, transparent = transparent, fmap_max = fmap_max)
