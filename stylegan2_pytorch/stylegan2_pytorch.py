@@ -634,11 +634,14 @@ class StyleGAN2(nn.Module):
             print(f'Random number (After creating optimizers): {sanitycheck}')
 
         self._init_weights()
-        self.reset_parameter_averaging()
-
         if self.debug_and_crash_mode:
             sanitycheck = torch.randint(0, 1000000, (1,))
-            print(f'Random number (After init weights and reset parameter avg): {sanitycheck}')
+            print(f'Random number (After init weights): {sanitycheck}')
+
+        self.reset_parameter_averaging()
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (After reset parameter avg): {sanitycheck}')
 
         self.cuda()
 
