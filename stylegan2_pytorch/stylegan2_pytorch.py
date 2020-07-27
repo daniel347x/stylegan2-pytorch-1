@@ -513,10 +513,21 @@ class Discriminator(nn.Module):
             num_layer = ind + 1
             is_not_last = ind != (len(chan_in_out) - 1)
 
-            block = DiscriminatorBlock(in_chan, out_chan, downsample = is_not_last)
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (Just before creating Discriminator block {ind}): {sanitycheck}')
+                print(f'Discriminator block {ind} args: in_chan {in_chan} out_chan {out_chan} downsample {is_not_last}')
+            block = DiscriminatorBlock(in_chan, out_chan, downsample=is_not_last)
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (Just after creating Discriminator block {ind}): {sanitycheck}')
             blocks.append(block)
 
             attn_fn = attn_and_ff(out_chan) if num_layer in attn_layers else None
+            if self.debug_and_crash_mode:
+                print(f'attn_fn for discriminator layer {ind}: {attn_fn}')
+            if self.debug_and_crash_mode:
+                print(f'attn_fn for discriminator layer {ind}: {attn_fn}')
 
             attn_blocks.append(attn_fn)
 
