@@ -756,7 +756,7 @@ class Trainer():
             generated_images = self.GAN.G(w_styles, noise)
             if self.debug_and_crash_mode is False:
                 sanitycheck = torch.randint(0, 1000000, (1,))
-                print(f'Random number (should always be the same): {sanitycheck}')
+                print(f'Random number (should always be the same in D): {sanitycheck}')
                 torch.save(generated_images, "/hydration/theirs-d.pt")
                 exit()
 
@@ -801,7 +801,7 @@ class Trainer():
             generated_images = self.GAN.G(w_styles, noise)
             if self.debug_and_crash_mode is False:
                 sanitycheck = torch.randint(0, 1000000, (1,))
-                print(f'Random number (should always be the same): {sanitycheck}')
+                print(f'Random number (should always be the same in G): {sanitycheck}')
                 torch.save(generated_images, "/hydration/theirs-g.pt")
                 exit()
 
