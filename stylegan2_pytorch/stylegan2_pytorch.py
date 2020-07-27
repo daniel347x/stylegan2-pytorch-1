@@ -547,9 +547,26 @@ class StyleGAN2(nn.Module):
             sanitycheck = torch.randint(0, 1000000, (1,))
             print(f'Random number (should always be the same ENTERING StyleGAN2 ctor): {sanitycheck}')
 
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (just before creating StyleVectorizer): {sanitycheck}')
         self.S = StyleVectorizer(latent_dim, style_depth)
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (just after creating StyleVectorizer): {sanitycheck}')
+
         self.G = Generator(image_size, latent_dim, network_capacity, transparent = transparent, attn_layers = attn_layers, no_const = no_const, fmap_max = fmap_max)
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (just after creating Generator): {sanitycheck}')
+
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (Just before creating Discriminator): {sanitycheck}')
         self.D = Discriminator(image_size, network_capacity, fq_layers = fq_layers, fq_dict_size = fq_dict_size, attn_layers = attn_layers, transparent = transparent, fmap_max = fmap_max)
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (Just after creating Discriminator): {sanitycheck}')
 
         if self.debug_and_crash_mode is False:
             self.SE = StyleVectorizer(latent_dim, style_depth)
