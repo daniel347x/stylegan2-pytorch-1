@@ -757,7 +757,7 @@ class Trainer():
             w_styles = styles_def_to_tensor(w_space)
 
             generated_images = self.GAN.G(w_styles, noise)
-            if self.debug_and_crash_mode is False:
+            if self.debug_and_crash_mode:
                 sanitycheck = torch.randint(0, 1000000, (1,))
                 print(f'Random number (should always be the same in D): {sanitycheck}')
                 torch.save(generated_images, "/hydration/theirs-d.pt")
@@ -802,7 +802,7 @@ class Trainer():
             w_styles = styles_def_to_tensor(w_space)
 
             generated_images = self.GAN.G(w_styles, noise)
-            if self.debug_and_crash_mode is False:
+            if self.debug_and_crash_mode:
                 sanitycheck = torch.randint(0, 1000000, (1,))
                 print(f'Random number (should always be the same in G): {sanitycheck}')
                 torch.save(generated_images, "/hydration/theirs-g.pt")
