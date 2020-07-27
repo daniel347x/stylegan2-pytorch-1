@@ -669,16 +669,8 @@ class Trainer():
         self.pl_length_ma = EMA(0.99)
         self.init_folders()
 
-        if self.debug_and_crash_mode:
-            sanitycheck = torch.randint(0, 1000000, (1,))
-            print(f'Random number (should always be the same at point A in Trainer ctor): {sanitycheck}')
-
         self.loader = None
         self.dataset_aug_prob = dataset_aug_prob
-
-        if self.debug_and_crash_mode:
-            sanitycheck = torch.randint(0, 1000000, (1,))
-            print(f'Random number (should always be the same at END of Trainer ctor): {sanitycheck}')
 
     def init_GAN(self):
         args, kwargs = self.GAN_params
@@ -711,6 +703,9 @@ class Trainer():
 
         if self.GAN is None:
             self.init_GAN()
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (should always be the same just after loading GENERATOR WRAPPER): {sanitycheck}')
 
         self.GAN.train()
         total_disc_loss = torch.tensor(0.).cuda()
