@@ -555,7 +555,7 @@ class StyleGAN2(nn.Module):
         if self.debug_and_crash_mode:
             sanitycheck = torch.randint(0, 1000000, (1,))
             print(f'Random number (just after creating StyleVectorizer): {sanitycheck}')
-            print(f'Generator args: image_size {image_size}, latent_dim {latent_dim}, network_capacity {network_capacity}, transparent {transparent}, attn_layers {attn_layers}, no_const {no_const}, fmap_max {}')
+            print(f'Generator args: image_size {image_size}, latent_dim {latent_dim}, network_capacity {network_capacity}, transparent {transparent}, attn_layers {attn_layers}, no_const {no_const}, fmap_max {fmap_max}')
 
         self.G = Generator(image_size, latent_dim, network_capacity, transparent = transparent, attn_layers = attn_layers, no_const = no_const, fmap_max = fmap_max)
         if self.debug_and_crash_mode:
