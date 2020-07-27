@@ -562,8 +562,9 @@ class StyleGAN2(nn.Module):
         # wrapper for augmenting all images going into the discriminator
         self.D_aug = AugWrapper(self.D, image_size)
 
-        set_requires_grad(self.SE, False)
-        set_requires_grad(self.GE, False)
+        if self.debug_and_crash_mode is False:
+            set_requires_grad(self.SE, False)
+            set_requires_grad(self.GE, False)
 
         generator_params = list(self.G.parameters()) + list(self.S.parameters())
         self.G_opt = AdamP(generator_params, lr = self.lr, betas=(0.5, 0.9))
