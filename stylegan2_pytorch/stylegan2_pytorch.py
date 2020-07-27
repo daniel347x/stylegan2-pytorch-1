@@ -614,17 +614,31 @@ class StyleGAN2(nn.Module):
 
         # wrapper for augmenting all images going into the discriminator
         self.D_aug = AugWrapper(self.D, image_size)
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (Just after creating AugWrapper): {sanitycheck}')
 
         if self.debug_and_crash_mode is False:
             set_requires_grad(self.SE, False)
             set_requires_grad(self.GE, False)
 
         generator_params = list(self.G.parameters()) + list(self.S.parameters())
-        self.G_opt = AdamP(generator_params, lr = self.lr, betas=(0.5, 0.9))
+
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (Before creating optimizers): {sanitycheck}')
+        self.G_opt = AdamP(generator_params, lr=self.lr, betas=(0.5, 0.9))
         self.D_opt = AdamP(self.D.parameters(), lr = self.lr, betas=(0.5, 0.9))
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (After creating optimizers): {sanitycheck}')
 
         self._init_weights()
         self.reset_parameter_averaging()
+
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (After init weights and reset parameter avg): {sanitycheck}')
 
         self.cuda()
 
