@@ -613,6 +613,7 @@ class Trainer():
             torch.backends.cudnn.deterministic = True
             torch.backends.cudnn.benchmark = False
             np.random.seed(use_manual_seed)
+        self.debug_and_crash_mode = debug_and_crash_mode
 
         self.GAN_params = [args, kwargs]
         self.GAN = None
