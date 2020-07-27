@@ -420,10 +420,8 @@ class Generator(nn.Module):
         self.latent_dim = latent_dim
         self.num_layers = int(log2(image_size) - 1)
 
-        filters = [network_capacity * (2 ** (i + 1)) for i in range(self.num_layers)][::-1]
+        filters = [min(fmap_max, network_capacity * (2 ** (i + 1))) for i in range(self.num_layers)][::-1]
 
-        set_fmap_max = partial(min, fmap_max)
-        filters = list(map(set_fmap_max, filters))
         init_channels = filters[0]
         filters = [init_channels, *filters]
 
@@ -499,10 +497,11 @@ class Discriminator(nn.Module):
         num_init_filters = 3 if not transparent else 4
 
         blocks = []
-        filters = [num_init_filters] + [(network_capacity) * (2 ** i) for i in range(num_layers + 1)]
+        filters = [num_init_filters] + [min(fmap_max, network_capacity * (2 ** i)) for i in range(num_layers + 1)]
 
-        set_fmap_max = partial(min, fmap_max)
-        filters = list(map(set_fmap_max, filters))
+        if self.debug_and_crash_mode:
+            print(f'Discriminator: filters {filters}')
+
         chan_in_out = list(zip(filters[:-1], filters[1:]))
 
         blocks = []
