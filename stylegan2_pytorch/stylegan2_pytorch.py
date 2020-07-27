@@ -728,9 +728,6 @@ class Trainer():
         self.no_const = config.pop('no_const', False)
         del self.GAN
         self.init_GAN()
-        if self.debug_and_crash_mode:
-            sanitycheck = torch.randint(0, 1000000, (1,))
-            print(f'Random number (should always be the same just after loading GENERATOR WRAPPER): {sanitycheck}')
 
     def config(self):
         return {'image_size': self.image_size, 'network_capacity': self.network_capacity, 'transparent': self.transparent, 'fq_layers': self.fq_layers, 'fq_dict_size': self.fq_dict_size, 'attn_layers': self.attn_layers, 'no_const': self.no_const}
