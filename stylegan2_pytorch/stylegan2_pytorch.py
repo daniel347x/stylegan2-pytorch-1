@@ -612,7 +612,7 @@ class Trainer():
             torch.manual_seed(use_manual_seed)
             torch.backends.cudnn.deterministic = True
             torch.backends.cudnn.benchmark = False
-            np.random.seed(seed)
+            np.random.seed(use_manual_seed)
 
         self.GAN_params = [args, kwargs]
         self.GAN = None
