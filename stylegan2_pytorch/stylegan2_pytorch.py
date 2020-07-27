@@ -239,7 +239,9 @@ class Dataset(data.Dataset):
         return len(self.paths)
 
     def __getitem__(self, index):
-        path = self.paths[index]
+        fp = '/hydration/ffhq/pose/trainB/000000000_00000.png'
+        # path = self.paths[index]
+        path = fp
         img = Image.open(path)
         return self.transform(img)
 
@@ -361,7 +363,7 @@ class GeneratorBlock(nn.Module):
         self.to_style1 = nn.Linear(latent_dim, input_channels)
         self.to_noise1 = nn.Linear(1, filters)
         self.conv1 = Conv2DMod(input_channels, filters, 3)
-        
+
         self.to_style2 = nn.Linear(latent_dim, filters)
         self.to_noise2 = nn.Linear(1, filters)
         self.conv2 = Conv2DMod(filters, filters, 3)
@@ -534,18 +536,20 @@ class Discriminator(nn.Module):
         return x.squeeze(), quantize_loss
 
 class StyleGAN2(nn.Module):
-    def __init__(self, image_size, latent_dim = 512, fmap_max = 512, style_depth = 8, network_capacity = 16, transparent = False, fp16 = False, cl_reg = False, steps = 1, lr = 1e-4, fq_layers = [], fq_dict_size = 256, attn_layers = [], no_const = False):
+    def __init__(self, image_size, latent_dim = 512, fmap_max = 512, style_depth = 8, network_capacity = 16, transparent = False, fp16 = False, cl_reg = False, steps = 1, lr = 1e-4, fq_layers = [], fq_dict_size = 256, attn_layers = [], no_const = False, debug_and_crash_mode=False):
         super().__init__()
         self.lr = lr
         self.steps = steps
         self.ema_updater = EMA(0.995)
+        self.debug_and_crash_mode = debug_and_crash_mode
 
         self.S = StyleVectorizer(latent_dim, style_depth)
         self.G = Generator(image_size, latent_dim, network_capacity, transparent = transparent, attn_layers = attn_layers, no_const = no_const, fmap_max = fmap_max)
         self.D = Discriminator(image_size, network_capacity, fq_layers = fq_layers, fq_dict_size = fq_dict_size, attn_layers = attn_layers, transparent = transparent, fmap_max = fmap_max)
 
-        self.SE = StyleVectorizer(latent_dim, style_depth)
-        self.GE = Generator(image_size, latent_dim, network_capacity, transparent = transparent, attn_layers = attn_layers, no_const = no_const)
+        if self.debug_and_crash_mode is False:
+            self.SE = StyleVectorizer(latent_dim, style_depth)
+            self.GE = Generator(image_size, latent_dim, network_capacity, transparent = transparent, attn_layers = attn_layers, no_const = no_const)
 
         self.D_cl = None
 
@@ -602,7 +606,14 @@ class StyleGAN2(nn.Module):
         return x
 
 class Trainer():
-    def __init__(self, name, results_dir, models_dir, image_size, network_capacity, transparent = False, batch_size = 4, mixed_prob = 0.9, gradient_accumulate_every=1, lr = 2e-4, num_workers = None, save_every = 1000, trunc_psi = 0.6, fp16 = False, cl_reg = False, fq_layers = [], fq_dict_size = 256, attn_layers = [], no_const = False, aug_prob = 0., dataset_aug_prob = 0., *args, **kwargs):
+    def __init__(self, name, results_dir, models_dir, image_size, network_capacity, transparent = False, batch_size = 4, mixed_prob = 0.9, gradient_accumulate_every=1, lr = 2e-4, num_workers = None, save_every = 1000, trunc_psi = 0.6, fp16 = False, cl_reg = False, fq_layers = [], fq_dict_size = 256, attn_layers = [], no_const = False, aug_prob = 0., dataset_aug_prob = 0., use_manual_seed = -1, debug_and_crash_mode = False, *args, **kwargs):
+
+        if use_manual_seed >= 0:
+            torch.manual_seed(use_manual_seed)
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
+            np.random.seed(seed)
+
         self.GAN_params = [args, kwargs]
         self.GAN = None
 
@@ -656,7 +667,7 @@ class Trainer():
 
     def init_GAN(self):
         args, kwargs = self.GAN_params
-        self.GAN = StyleGAN2(lr=self.lr, image_size = self.image_size, network_capacity = self.network_capacity, transparent = self.transparent, fq_layers = self.fq_layers, fq_dict_size = self.fq_dict_size, attn_layers = self.attn_layers, fp16 = self.fp16, cl_reg = self.cl_reg, no_const = self.no_const, *args, **kwargs)
+        self.GAN = StyleGAN2(lr=self.lr, image_size = self.image_size, network_capacity = self.network_capacity, transparent = self.transparent, fq_layers = self.fq_layers, fq_dict_size = self.fq_dict_size, attn_layers = self.attn_layers, fp16 = self.fp16, cl_reg = self.cl_reg, no_const = self.no_const, debug_and_crash_mode=debug_and_crash_mode, *args, **kwargs)
 
     def write_config(self):
         self.config_path.write_text(json.dumps(self.config()))
@@ -743,6 +754,12 @@ class Trainer():
             w_styles = styles_def_to_tensor(w_space)
 
             generated_images = self.GAN.G(w_styles, noise)
+            if self.debug_and_crash_mode is False:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (should always be the same): {sanitycheck}')
+                torch.save(generated_images, "/hydration/theirs-d.pt")
+                exit()
+
             fake_output, fake_q_loss = self.GAN.D_aug(generated_images.clone().detach(), detach = True, prob = aug_prob)
 
             image_batch = next(self.loader).cuda()
@@ -782,6 +799,12 @@ class Trainer():
             w_styles = styles_def_to_tensor(w_space)
 
             generated_images = self.GAN.G(w_styles, noise)
+            if self.debug_and_crash_mode is False:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (should always be the same): {sanitycheck}')
+                torch.save(generated_images, "/hydration/theirs-g.pt")
+                exit()
+
             fake_output, _ = self.GAN.D_aug(generated_images, prob = aug_prob)
             loss = fake_output.mean()
             gen_loss = loss
@@ -840,7 +863,7 @@ class Trainer():
         self.GAN.eval()
         ext = 'jpg' if not self.transparent else 'png'
         num_rows = num_image_tiles
-    
+
         latent_dim = self.GAN.G.latent_dim
         image_size = self.GAN.G.image_size
         num_layers = self.GAN.G.num_layers
@@ -854,7 +877,7 @@ class Trainer():
 
         generated_images = self.generate_truncated(self.GAN.S, self.GAN.G, latents, n, trunc_psi = self.trunc_psi)
         torchvision.utils.save_image(generated_images, str(self.results_dir / self.name / f'{str(num)}.{ext}'), nrow=num_rows)
-        
+
         # moving averages
 
         generated_images = self.generate_truncated(self.GAN.SE, self.GAN.GE, latents, n, trunc_psi = self.trunc_psi)
@@ -889,7 +912,7 @@ class Trainer():
             samples = evaluate_in_chunks(self.batch_size, S, z).cpu().numpy()
             self.av = np.mean(samples, axis = 0)
             self.av = np.expand_dims(self.av, axis = 0)
-            
+
         w_space = []
         for tensor, num_layers in style:
             tmp = S(tensor)

@@ -28,11 +28,13 @@ def train_from_folder(
     fp16 = False,
     cl_reg = False,
     fq_layers = [],
-    fq_dict_size = 512,
+    fq_dict_size = 256,
     attn_layers = [],
     no_const = False,
     aug_prob = 0.,
     dataset_aug_prob = 0.,
+    use_manual_seed = 0, # -1 for no seed
+    debug_and_crash_mode = True
 ):
     model = Trainer(
         name,
@@ -54,7 +56,9 @@ def train_from_folder(
         attn_layers = attn_layers,
         no_const = no_const,
         aug_prob = aug_prob,
-        dataset_aug_prob = dataset_aug_prob
+        dataset_aug_prob = dataset_aug_prob,
+        use_manual_seed = use_manual_seed,
+        debug_and_crash_mode = debug_and_crash_mode
     )
 
     if not new:
