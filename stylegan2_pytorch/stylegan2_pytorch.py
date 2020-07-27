@@ -413,8 +413,9 @@ class DiscriminatorBlock(nn.Module):
         return x
 
 class Generator(nn.Module):
-    def __init__(self, image_size, latent_dim, network_capacity = 16, transparent = False, attn_layers = [], no_const = False, fmap_max = 512):
+    def __init__(self, image_size, latent_dim, network_capacity = 16, transparent = False, attn_layers = [], no_const = False, fmap_max = 512, debug_and_crash_mode=False):
         super().__init__()
+        self.debug_and_crash_mode = debug_and_crash_mode
         self.image_size = image_size
         self.latent_dim = latent_dim
         self.num_layers = int(log2(image_size) - 1)
@@ -432,7 +433,14 @@ class Generator(nn.Module):
         if no_const:
             self.to_initial_block = nn.ConvTranspose2d(latent_dim, init_channels, 4, 1, 0, bias=False)
         else:
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (should always be the same just before creating initial_block in Generator): {sanitycheck}')
+                print(f'initial block: {init_channels}x4x4')
             self.initial_block = nn.Parameter(torch.randn((1, init_channels, 4, 4)))
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (should always be the same just after creating initial_block in Generator): {sanitycheck}')
 
         self.blocks = nn.ModuleList([])
         self.attns = nn.ModuleList([])
@@ -557,7 +565,7 @@ class StyleGAN2(nn.Module):
             print(f'Random number (just after creating StyleVectorizer): {sanitycheck}')
             print(f'Generator args: image_size {image_size}, latent_dim {latent_dim}, network_capacity {network_capacity}, transparent {transparent}, attn_layers {attn_layers}, no_const {no_const}, fmap_max {fmap_max}')
 
-        self.G = Generator(image_size, latent_dim, network_capacity, transparent = transparent, attn_layers = attn_layers, no_const = no_const, fmap_max = fmap_max)
+        self.G = Generator(image_size, latent_dim, network_capacity, transparent=transparent, attn_layers=attn_layers, no_const=no_const, fmap_max=fmap_max, debug_and_crash_mode=self.debug_and_crash_mode)
         if self.debug_and_crash_mode:
             sanitycheck = torch.randint(0, 1000000, (1,))
             print(f'Random number (just after creating Generator): {sanitycheck}')
