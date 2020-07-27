@@ -492,8 +492,9 @@ class Generator(nn.Module):
         return rgb
 
 class Discriminator(nn.Module):
-    def __init__(self, image_size, network_capacity = 16, fq_layers = [], fq_dict_size = 256, attn_layers = [], transparent = False, fmap_max = 512):
+    def __init__(self, image_size, network_capacity = 16, fq_layers = [], fq_dict_size = 256, attn_layers = [], transparent = False, fmap_max = 512, debug_and_crash_mode=False):
         super().__init__()
+        self.debug_and_crash_mode = debug_and_crash_mode
         num_layers = int(log2(image_size) - 1)
         num_init_filters = 3 if not transparent else 4
 
@@ -519,7 +520,8 @@ class Discriminator(nn.Module):
 
             attn_blocks.append(attn_fn)
 
-            quantize_fn = PermuteToFrom(VectorQuantize(out_chan, fq_dict_size)) if num_layer in fq_layers else None
+            # quantize_fn = PermuteToFrom(VectorQuantize(out_chan, fq_dict_size)) if num_layer in fq_layers else None
+            quantize_fn = None
             quantize_blocks.append(quantize_fn)
 
         self.blocks = nn.ModuleList(blocks)
@@ -580,7 +582,7 @@ class StyleGAN2(nn.Module):
         if self.debug_and_crash_mode:
             sanitycheck = torch.randint(0, 1000000, (1,))
             print(f'Random number (Just before creating Discriminator): {sanitycheck}')
-        self.D = Discriminator(image_size, network_capacity, fq_layers = fq_layers, fq_dict_size = fq_dict_size, attn_layers = attn_layers, transparent = transparent, fmap_max = fmap_max)
+        self.D = Discriminator(image_size, network_capacity, fq_layers = fq_layers, fq_dict_size = fq_dict_size, attn_layers = attn_layers, transparent = transparent, fmap_max = fmap_max, debug_and_crash_mode=self.debug_and_crash_mode)
         if self.debug_and_crash_mode:
             sanitycheck = torch.randint(0, 1000000, (1,))
             print(f'Random number (Just after creating Discriminator): {sanitycheck}')
@@ -616,6 +618,10 @@ class StyleGAN2(nn.Module):
         self.fp16 = fp16
         if fp16:
             (self.S, self.G, self.D, self.SE, self.GE), (self.G_opt, self.D_opt) = amp.initialize([self.S, self.G, self.D, self.SE, self.GE], [self.G_opt, self.D_opt], opt_level='O2')
+
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (should always be the same at END of StyleGAN2 ctor): {sanitycheck}')
 
     def _init_weights(self):
         for m in self.modules():
