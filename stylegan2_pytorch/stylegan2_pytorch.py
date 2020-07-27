@@ -669,6 +669,10 @@ class Trainer():
         self.pl_length_ma = EMA(0.99)
         self.init_folders()
 
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (should always be the same at point A in Trainer ctor): {sanitycheck}')
+
         self.loader = None
         self.dataset_aug_prob = dataset_aug_prob
 
