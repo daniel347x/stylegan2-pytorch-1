@@ -454,6 +454,10 @@ class Generator(nn.Module):
 
             self.attns.append(attn_fn)
 
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (should always be the same just before creating block {ind} in Generator): {sanitycheck}')
+                print(f'Args, block {ind} in Generator: latent_dim {latent_dim} in_chan {in_chan} out_chan {out_chan} upsample {not_first} upsample_rgb {not_last} rgba {transparent}')
             block = GeneratorBlock(
                 latent_dim,
                 in_chan,
@@ -462,6 +466,9 @@ class Generator(nn.Module):
                 upsample_rgb = not_last,
                 rgba = transparent
             )
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (should always be the same just after creating block {ind} in Generator): {sanitycheck}')
             self.blocks.append(block)
 
     def forward(self, styles, input_noise):
