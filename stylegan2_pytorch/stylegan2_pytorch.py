@@ -617,6 +617,10 @@ class Trainer():
             np.random.seed(use_manual_seed)
         self.debug_and_crash_mode = debug_and_crash_mode
 
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (should always be the same in Trainer ctor): {sanitycheck}')
+
         self.GAN_params = [args, kwargs]
         self.GAN = None
 
