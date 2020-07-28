@@ -165,8 +165,11 @@ def mixed_list(n, layers, latent_dim):
 def latent_to_w(style_vectorizer, latent_descr):
     return [(style_vectorizer(z), num_layers) for z, num_layers in latent_descr]
 
-def image_noise(n, im_size):
-    return torch.FloatTensor(n, im_size, im_size, 1).uniform_(0., 1.).cuda()
+def image_noise(n, im_size, debug_and_crash_mode=False):
+    if debug_and_crash_mode is False:
+        return torch.FloatTensor(n, im_size, im_size, 1).uniform_(0., 1.).cuda()
+    else:
+        return torch.zeros(n, im_size, im_size, 1).float().cuda()
 
 def leaky_relu(p=0.2):
     return nn.LeakyReLU(p, inplace=True)
@@ -980,12 +983,37 @@ class Trainer():
         self.GAN.D_opt.zero_grad()
 
         for i in range(self.gradient_accumulate_every):
-            get_latents_fn = mixed_list if random() < self.mixed_prob else noise_list
+
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (Inside train discriminator function): {sanitycheck}')
+
+            if self.debug_and_crash_mode is False:
+                get_latents_fn = mixed_list if random() < self.mixed_prob else noise_list
+            else:
+                get_latents_fn = noise_list
+
             style = get_latents_fn(batch_size, num_layers, latent_dim)
-            noise = image_noise(batch_size, image_size)
+            noise = image_noise(batch_size, image_size, self.debug_and_crash_mode)
 
             w_space = latent_to_w(self.GAN.S, style)
             w_styles = styles_def_to_tensor(w_space)
+
+            if trainer.module.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (...Just initialized loop iteration - DUMMY - really just got style code): {sanitycheck}')
+
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (INSIDE FORWARD for discriminator - DUMMY): {sanitycheck}')
+
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (INSIDE dis_update for discriminator - DUMMY): {sanitycheck}')
+
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (CALLING GENERATOR): {sanitycheck}')
 
             generated_images = self.GAN.G(w_styles, noise)
             if self.debug_and_crash_mode:
