@@ -925,6 +925,10 @@ class Trainer():
 
             self.GAN.D_opt.step()
 
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (About to train discriminator): {sanitycheck}')
+
         # train discriminator
 
         avg_pl_length = self.pl_mean
