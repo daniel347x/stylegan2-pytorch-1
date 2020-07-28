@@ -390,18 +390,57 @@ class Conv2DMod(nn.Module):
 class GeneratorBlock(nn.Module):
     def __init__(self, latent_dim, input_channels, filters, upsample=True, upsample_rgb=True, rgba=False, debug_and_crash_mode=False):
         super().__init__()
+        self.debug_and_crash_mode = debug_and_crash_mode
+
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (before Upsample): {sanitycheck}')
         self.upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False) if upsample else None
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (after Upsample): {sanitycheck}')
 
         self.to_style1 = nn.Linear(latent_dim, input_channels)
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (after Linear): {sanitycheck}')
+
         self.to_noise1 = nn.Linear(1, filters)
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (after Linear 2): {sanitycheck}')
+
         self.conv1 = Conv2DMod(input_channels, filters, 3, debug_and_crash_mode=debug_and_crash_mode)
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (after Conv2DMod): {sanitycheck}')
 
         self.to_style2 = nn.Linear(latent_dim, filters)
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (after Linear3): {sanitycheck}')
+
         self.to_noise2 = nn.Linear(1, filters)
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (after Linear4): {sanitycheck}')
+
         self.conv2 = Conv2DMod(filters, filters, 3, debug_and_crash_mode=debug_and_crash_mode)
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (after Conv2DMod 2): {sanitycheck}')
 
         self.activation = leaky_relu()
-        self.to_rgb = RGBBlock(latent_dim, filters, upsample_rgb, rgba, debug_and_crash_mode=debug_and_crash_mode)
+
+        self.use_rgb = True
+        if self.use_rgb:
+            self.to_rgb = RGBBlock(latent_dim, filters, upsample_rgb, rgba, debug_and_crash_mode=debug_and_crash_mode)
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (after RGBBlock): {sanitycheck}')
+        else
+            if self.debug_and_crash_mode:
+                print(f'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX not generating RGB')
 
     def forward(self, x, prev_rgb, istyle, inoise):
         if self.upsample is not None:
