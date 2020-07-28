@@ -217,11 +217,13 @@ def resize_to_minimum_size(min_size, image):
     return image
 
 class Dataset(data.Dataset):
-    def __init__(self, folder, image_size, transparent = False, aug_prob = 0.):
+    def __init__(self, folder, image_size, transparent = False, aug_prob = 0., debug_and_crash_mode=False):
         super().__init__()
+        self.debug_and_crash_mode = debug_and_crash_mode
         self.folder = folder
         self.image_size = image_size
-        self.paths = [p for ext in EXTS for p in Path(f'{folder}').glob(f'**/*.{ext}')]
+        if self.debug_and_crash_mode is False:
+            self.paths = [p for ext in EXTS for p in Path(f'{folder}').glob(f'**/*.{ext}')]
 
         convert_image_fn = convert_transparent_to_rgb if not transparent else convert_rgb_to_transparent
         num_channels = 3 if not transparent else 4
@@ -236,12 +238,16 @@ class Dataset(data.Dataset):
         ])
 
     def __len__(self):
-        return len(self.paths)
+        if self.debug_and_crash_mode is False:
+            return len(self.paths)
+        else:
+            return 1
 
     def __getitem__(self, index):
-        fp = '/hydration/ffhq/pose/trainB/000000000_00000.png'
-        # path = self.paths[index]
-        path = fp
+        if self.debug_and_crash_mode is False:
+            path = self.paths[index]
+        else:
+            path = '/hydration/ffhq/pose/trainB/000000000_00000.png'
         img = Image.open(path)
         return self.transform(img)
 
@@ -915,6 +921,12 @@ class Trainer():
         if self.debug_and_crash_mode:
             sanitycheck = torch.randint(0, 1000000, (1,))
             print(f'Random number (Initialization E): {sanitycheck}')
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (Initialization F): {sanitycheck}')
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (Initialization G): {sanitycheck}')
 
         if self.debug_and_crash_mode:
             sanitycheck = torch.randint(0, 1000000, (1,))
