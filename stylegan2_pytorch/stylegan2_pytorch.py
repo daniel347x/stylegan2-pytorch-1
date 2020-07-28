@@ -438,7 +438,7 @@ class GeneratorBlock(nn.Module):
             if self.debug_and_crash_mode:
                 sanitycheck = torch.randint(0, 1000000, (1,))
                 print(f'Random number (after RGBBlock): {sanitycheck}')
-        else
+        else:
             if self.debug_and_crash_mode:
                 print(f'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX not generating RGB')
 
