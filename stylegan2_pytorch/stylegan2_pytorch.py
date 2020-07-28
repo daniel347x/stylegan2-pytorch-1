@@ -327,13 +327,40 @@ class Conv2DMod(nn.Module):
         self.kernel = kernel
         self.stride = stride
         self.dilation = dilation
+        self.debug_and_crash_mode = debug_and_crash_mode
+
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (entering Conv2DMod): {sanitycheck}')
+
         self.weight = nn.Parameter(torch.randn((out_chan, in_chan, kernel, kernel)))
+
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (after Conv2DMod nn.Parameter): {sanitycheck}')
+
         if debug_and_crash_mode:
             # kaiming_normal_ is non-deterministic
             # nn.init.xavier_normal_(self.weight)
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (Conv2DMod about to zero weight): {sanitycheck}')
             nn.init.zeros_(self.weight)
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (Conv2DMod done zeroing weight): {sanitycheck}')
         else:
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (Conv2DMod about to kaiming): {sanitycheck}')
             nn.init.kaiming_normal_(self.weight, a=0, mode='fan_in', nonlinearity='leaky_relu')
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (Conv2DMod done kaiming): {sanitycheck}')
+
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (Conv2DMod exiting): {sanitycheck}')
 
     def _get_same_padding(self, size, kernel, dilation, stride):
         return ((size - 1) * (stride - 1) + dilation * (kernel - 1)) // 2
