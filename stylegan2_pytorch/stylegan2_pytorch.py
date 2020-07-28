@@ -654,15 +654,43 @@ class StyleGAN2(nn.Module):
             print(f'Random number (should always be the same at END of StyleGAN2 ctor): {sanitycheck}')
 
     def _init_weights(self):
-        for m in self.modules():
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (entering _init_weights): {sanitycheck}')
+        for x, m in enumerate(self.modules()):
             if type(m) in {nn.Conv2d, nn.Linear}:
+                if self.debug_and_crash_mode:
+                    sanitycheck = torch.randint(0, 1000000, (1,))
+                    print(f'Random number (_init_weights - BEFORE M block {x}): {sanitycheck}')
                 nn.init.kaiming_normal_(m.weight, a=0, mode='fan_in', nonlinearity='leaky_relu')
+                if self.debug_and_crash_mode:
+                    sanitycheck = torch.randint(0, 1000000, (1,))
+                    print(f'Random number (_init_weights - AFTER M block {x}): {sanitycheck}')
+            else:
+                if self.debug_and_crash_mode:
+                    sanitycheck = torch.randint(0, 1000000, (1,))
+                    print(f'Random number (_init_weights - SKIPPING M block {x} of type {type(m)}): {sanitycheck}')
 
-        for block in self.G.blocks:
-            nn.init.zeros_(block.to_noise1.weight)
-            nn.init.zeros_(block.to_noise2.weight)
-            nn.init.zeros_(block.to_noise1.bias)
-            nn.init.zeros_(block.to_noise2.bias)
+        def initGBlocks(g):
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (Entering initGBlocks: {sanitycheck}')
+            for x, block in enumerate(g.blocks):
+                if self.debug_and_crash_mode:
+                    sanitycheck = torch.randint(0, 1000000, (1,))
+                    print(f'Random number (_init_weights - BEFORE G block {x}): {sanitycheck}')
+                nn.init.zeros_(block.to_noise1.weight)
+                nn.init.zeros_(block.to_noise2.weight)
+                nn.init.zeros_(block.to_noise1.bias)
+                nn.init.zeros_(block.to_noise2.bias)
+                if self.debug_and_crash_mode:
+                    sanitycheck = torch.randint(0, 1000000, (1,))
+                    print(f'Random number (_init_weights - AFTER G block {x}): {sanitycheck}')
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (Exiting initGBlocks: {sanitycheck}')
+
+        initGBlocks(self.G)
 
     def EMA(self):
         def update_moving_average(ma_model, current_model):
