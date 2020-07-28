@@ -999,7 +999,7 @@ class Trainer():
             w_space = latent_to_w(self.GAN.S, style)
             w_styles = styles_def_to_tensor(w_space)
 
-            if trainer.module.debug_and_crash_mode:
+            if self.debug_and_crash_mode:
                 sanitycheck = torch.randint(0, 1000000, (1,))
                 print(f'Random number (...Just initialized loop iteration - DUMMY - really just got style code): {sanitycheck}')
 
