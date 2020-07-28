@@ -296,13 +296,13 @@ class StyleVectorizer(nn.Module):
         return self.net(x)
 
 class RGBBlock(nn.Module):
-    def __init__(self, latent_dim, input_channel, upsample, rgba = False):
+    def __init__(self, latent_dim, input_channel, upsample, rgba = False, debug_and_crash_mode=False):
         super().__init__()
         self.input_channel = input_channel
         self.to_style = nn.Linear(latent_dim, input_channel)
 
         out_filters = 3 if not rgba else 4
-        self.conv = Conv2DMod(input_channel, out_filters, 1, demod=False)
+        self.conv = Conv2DMod(input_channel, out_filters, 1, demod=False, debug_and_crash_mode=debug_and_crash_mode)
 
         self.upsample = nn.Upsample(scale_factor = 2, mode='bilinear', align_corners=False) if upsample else None
 
@@ -320,7 +320,7 @@ class RGBBlock(nn.Module):
         return x
 
 class Conv2DMod(nn.Module):
-    def __init__(self, in_chan, out_chan, kernel, demod=True, stride=1, dilation=1, **kwargs):
+    def __init__(self, in_chan, out_chan, kernel, demod=True, stride=1, dilation=1, debug_and_crash_mode=False, ** kwargs):
         super().__init__()
         self.filters = out_chan
         self.demod = demod
@@ -328,7 +328,11 @@ class Conv2DMod(nn.Module):
         self.stride = stride
         self.dilation = dilation
         self.weight = nn.Parameter(torch.randn((out_chan, in_chan, kernel, kernel)))
-        nn.init.kaiming_normal_(self.weight, a=0, mode='fan_in', nonlinearity='leaky_relu')
+        if debug_and_crash_mode:
+            # kaiming_normal_ is non-deterministic
+            nn.init.xavier_normal_(self.weight)
+        else:
+            nn.init.kaiming_normal_(self.weight, a=0, mode='fan_in', nonlinearity='leaky_relu')
 
     def _get_same_padding(self, size, kernel, dilation, stride):
         return ((size - 1) * (stride - 1) + dilation * (kernel - 1)) // 2
@@ -356,20 +360,20 @@ class Conv2DMod(nn.Module):
         return x
 
 class GeneratorBlock(nn.Module):
-    def __init__(self, latent_dim, input_channels, filters, upsample = True, upsample_rgb = True, rgba = False):
+    def __init__(self, latent_dim, input_channels, filters, upsample=True, upsample_rgb=True, rgba=False, debug_and_crash_mode=False):
         super().__init__()
         self.upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False) if upsample else None
 
         self.to_style1 = nn.Linear(latent_dim, input_channels)
         self.to_noise1 = nn.Linear(1, filters)
-        self.conv1 = Conv2DMod(input_channels, filters, 3)
+        self.conv1 = Conv2DMod(input_channels, filters, 3, debug_and_crash_mode=debug_and_crash_mode)
 
         self.to_style2 = nn.Linear(latent_dim, filters)
         self.to_noise2 = nn.Linear(1, filters)
-        self.conv2 = Conv2DMod(filters, filters, 3)
+        self.conv2 = Conv2DMod(filters, filters, 3, debug_and_crash_mode=debug_and_crash_mode)
 
         self.activation = leaky_relu()
-        self.to_rgb = RGBBlock(latent_dim, filters, upsample_rgb, rgba)
+        self.to_rgb = RGBBlock(latent_dim, filters, upsample_rgb, rgba, debug_and_crash_mode=debug_and_crash_mode)
 
     def forward(self, x, prev_rgb, istyle, inoise):
         if self.upsample is not None:
@@ -462,7 +466,8 @@ class Generator(nn.Module):
                 out_chan,
                 upsample = not_first,
                 upsample_rgb = not_last,
-                rgba = transparent
+                rgba = transparent,
+                debug_and_crash_mode=self.debug_and_crash_mode
             )
             if self.debug_and_crash_mode:
                 sanitycheck = torch.randint(0, 1000000, (1,))
@@ -662,7 +667,11 @@ class StyleGAN2(nn.Module):
                 if self.debug_and_crash_mode:
                     sanitycheck = torch.randint(0, 1000000, (1,))
                     print(f'Random number (_init_weights - BEFORE M block {x} of type {type(m)} with m.weight {m.weight.size()}): {sanitycheck}')
-                nn.init.kaiming_normal_(m.weight, a=0, mode='fan_in', nonlinearity='leaky_relu')
+                if self.debug_and_crash_mode:
+                    # kaiming_normal_ is non-deterministic
+                    nn.init.xavier_normal_(m.weight)
+                else:
+                    nn.init.kaiming_normal_(m.weight, a=0, mode='fan_in', nonlinearity='leaky_relu')
                 if self.debug_and_crash_mode:
                     sanitycheck = torch.randint(0, 1000000, (1,))
                     print(f'Random number (_init_weights - AFTER M block {x}): {sanitycheck}')
