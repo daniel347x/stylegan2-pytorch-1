@@ -25,7 +25,6 @@ def train_from_folder(
     save_frames = False,
     num_image_tiles = 8,
     trunc_psi = 0.75,
-    # trunc_psi=100.0,
     fp16=False,
     cl_reg = False,
     fq_layers = [],
