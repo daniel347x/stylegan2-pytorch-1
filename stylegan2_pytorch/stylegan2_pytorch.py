@@ -661,7 +661,7 @@ class StyleGAN2(nn.Module):
             if type(m) in {nn.Conv2d, nn.Linear}:
                 if self.debug_and_crash_mode:
                     sanitycheck = torch.randint(0, 1000000, (1,))
-                    print(f'Random number (_init_weights - BEFORE M block {x} of type {type(m)}): {sanitycheck}')
+                    print(f'Random number (_init_weights - BEFORE M block {x} of type {type(m)} with m.weight {m.weight.size()}): {sanitycheck}')
                 nn.init.kaiming_normal_(m.weight, a=0, mode='fan_in', nonlinearity='leaky_relu')
                 if self.debug_and_crash_mode:
                     sanitycheck = torch.randint(0, 1000000, (1,))
