@@ -1000,7 +1000,7 @@ class Trainer():
             else:
                 get_latents_fn = noise_list
 
-            style = get_latents_fn(batch_size, num_layers, latent_dim)
+            style = get_latents_fn(batch_size, num_layers, latent_dim, self.debug_and_crash_mode)
             noise = image_noise(batch_size, image_size, self.debug_and_crash_mode)
 
             w_space = latent_to_w(self.GAN.S, style)
