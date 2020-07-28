@@ -152,15 +152,22 @@ def calc_pl_lengths(styles, images):
 
     return (pl_grads ** 2).sum(dim=2).mean(dim=1).sqrt()
 
-def noise(n, latent_dim):
-    return torch.randn(n, latent_dim).cuda()
 
-def noise_list(n, layers, latent_dim):
-    return [(noise(n, latent_dim), layers)]
+def noise(n, latent_dim, debug_and_crash_mode=False):
+    if debug_and_crash_mode is False:
+        return torch.randn(n, latent_dim).cuda()
+    else:
+        return torch.zeros(n, latent_dim).cuda()
 
-def mixed_list(n, layers, latent_dim):
-    tt = int(torch.rand(()).numpy() * layers)
-    return noise_list(n, tt, latent_dim) + noise_list(n, layers - tt, latent_dim)
+def noise_list(n, layers, latent_dim, debug_and_crash_mode=False):
+    return [(noise(n, latent_dim, debug_and_crash_mode), layers)]
+
+def mixed_list(n, layers, latent_dim, debug_and_crash_mode=False):
+    if debug_and_crash_mode is False:
+        tt = int(torch.rand(()).numpy() * layers)
+    else:
+        tt = 0
+    return noise_list(n, tt, latent_dim, debug_and_crash_mode) + noise_list(n, layers - tt, latent_dim, debug_and_crash_mode)
 
 def latent_to_w(style_vectorizer, latent_descr):
     return [(style_vectorizer(z), num_layers) for z, num_layers in latent_descr]
