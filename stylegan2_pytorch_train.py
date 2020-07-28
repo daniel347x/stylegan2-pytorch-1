@@ -6,9 +6,9 @@ from datetime import datetime
 
 def train_from_folder(
     data = '/hydration/ffhq/pose/trainB',
-    results_dir = './results',
+    results_dir = '/hydration/results',
     models_dir = './models',
-    name = 'run_2001',
+    name = 'run_3000',
     new = False,
     load_from = -1,
     image_size = 256,
