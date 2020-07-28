@@ -886,6 +886,14 @@ class Trainer():
             sanitycheck = torch.randint(0, 1000000, (1,))
             print(f'Random number (Done initializing model; inside training loop): {sanitycheck}')
 
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (Done initializing wandb - DUMMY): {sanitycheck}')
+
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (Done initializing data loaders - DUMMY): {sanitycheck}')
+
         self.GAN.train()
         total_disc_loss = torch.tensor(0.).cuda()
         total_gen_loss = torch.tensor(0.).cuda()
