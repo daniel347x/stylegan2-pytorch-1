@@ -330,7 +330,8 @@ class Conv2DMod(nn.Module):
         self.weight = nn.Parameter(torch.randn((out_chan, in_chan, kernel, kernel)))
         if debug_and_crash_mode:
             # kaiming_normal_ is non-deterministic
-            nn.init.xavier_normal_(self.weight)
+            # nn.init.xavier_normal_(self.weight)
+            nn.init.zeros_(self.weight)
         else:
             nn.init.kaiming_normal_(self.weight, a=0, mode='fan_in', nonlinearity='leaky_relu')
 
@@ -669,7 +670,8 @@ class StyleGAN2(nn.Module):
                     print(f'Random number (_init_weights - BEFORE M block {x} of type {type(m)} with m.weight {m.weight.size()}): {sanitycheck}')
                 if self.debug_and_crash_mode:
                     # kaiming_normal_ is non-deterministic
-                    nn.init.xavier_normal_(m.weight)
+                    # nn.init.xavier_normal_(m.weight)
+                    nn.init.zeros_(m.weight)
                 else:
                     nn.init.kaiming_normal_(m.weight, a=0, mode='fan_in', nonlinearity='leaky_relu')
                 if self.debug_and_crash_mode:
