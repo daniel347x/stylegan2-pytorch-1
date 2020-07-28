@@ -912,7 +912,24 @@ class Trainer():
 
         backwards = partial(loss_backwards, self.fp16)
 
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (Initialization E): {sanitycheck}')
+
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (Inside iterations): {sanitycheck}')
+
+        if self.debug_and_crash_mode:
+            sanitycheck = torch.randint(0, 1000000, (1,))
+            print(f'Random number (Done pulling items - DUMMY): {sanitycheck}')
+
         if self.GAN.D_cl is not None:
+
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (CALLING CL): {sanitycheck}')
+
             self.GAN.D_opt.zero_grad()
 
             if apply_cl_reg_to_generated:
@@ -936,6 +953,10 @@ class Trainer():
             backwards(loss, self.GAN.D_opt)
 
             self.GAN.D_opt.step()
+        else:
+            if self.debug_and_crash_mode:
+                sanitycheck = torch.randint(0, 1000000, (1,))
+                print(f'Random number (NOT CALLING CL): {sanitycheck}')
 
         if self.debug_and_crash_mode:
             sanitycheck = torch.randint(0, 1000000, (1,))
