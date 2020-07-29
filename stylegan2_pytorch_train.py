@@ -33,8 +33,8 @@ def train_from_folder(
     no_const = False,
     aug_prob = 0.,
     dataset_aug_prob = 0.,
-    use_manual_seed = -1, # -1 for no seed
-    debug_and_crash_mode = False
+    use_manual_seed = 0, # -1 for no seed
+    debug_and_crash_mode = True
 ):
     model = Trainer(
         name,
