@@ -8,7 +8,7 @@ def train_from_folder(
     data = '/hydration/ffhq/pose/trainB',
     results_dir = '/hydration/results',
     models_dir = './models',
-    name = 'run_3000',
+    name = 'run_testsg2_001',
     new = False,
     load_from = -1,
     image_size = 256,
